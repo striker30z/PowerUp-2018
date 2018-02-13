@@ -1,10 +1,6 @@
 package org.usfirst.frc.team3695.robot;
 
-import org.usfirst.frc.team3695.robot.commands.ButtonCommandClamp;
-import org.usfirst.frc.team3695.robot.commands.ButtonCommandEat;
-import org.usfirst.frc.team3695.robot.commands.ButtonCommandKillCompressor;
-import org.usfirst.frc.team3695.robot.commands.ButtonCommandSpit;
-import org.usfirst.frc.team3695.robot.enumeration.Direction;
+import org.usfirst.frc.team3695.robot.commands.*;
 import org.usfirst.frc.team3695.robot.util.Xbox;
 
 import edu.wpi.first.wpilibj.Joystick;
@@ -31,10 +27,17 @@ public class OI {
 			Button spinOut = new JoystickButton(OPERATOR, Xbox.RB);
 				spinOut.whileHeld(new ButtonCommandSpit());
 		/// manipulator clamp
-			Button toggleClamp = new JoystickButton(OPERATOR, Xbox.RB);
+			Button toggleClamp = new JoystickButton(OPERATOR, Xbox.A);
 				toggleClamp.toggleWhenActive(new ButtonCommandClamp());
+		/// candy cane
+			Button toggleHook = new JoystickButton(OPERATOR, Xbox.B);
+				toggleHook.toggleWhenActive(new ButtonCommandHook());
+		
 		/// To Compress, or Not To Compress. It is now an option.
 			SmartDashboard.putData("Disable Compressor", new ButtonCommandKillCompressor());
+
+		/// PID
+			SmartDashboard.putData("Kill PID", new ButtonCommandKillPID());
 	}
 	
 }
