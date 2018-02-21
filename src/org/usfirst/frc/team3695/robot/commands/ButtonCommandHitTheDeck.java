@@ -1,31 +1,34 @@
 package org.usfirst.frc.team3695.robot.commands;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.Command;
 import org.usfirst.frc.team3695.robot.Robot;
 
 /**
  * toggles the state of the clamp
  */
-public class CyborgCommandAscend extends Command {
+public class ButtonCommandHitTheDeck extends Command {
 	
 	Boolean isFinished;
 	
-    public CyborgCommandAscend() {
+    public ButtonCommandHitTheDeck() {
         requires(Robot.SUB_MAST);
     }
-
+    
     protected void initialize() {
-    	DriverStation.reportError("AHHHHHH I'M FLYING AWAY", false);
+    	Robot.SUB_MAST.override = true;
     	//isFinished = Robot.SUB_MAST.goToMiddle();
     }
 
-    protected void execute() {}
+    protected void execute() {
+    	isFinished = Robot.SUB_MAST.dropIt();
+    	if (isFinished) 
+			end();
+    }
 
     protected boolean isFinished() { return isFinished; }
 
     protected void end() {
-        DriverStation.reportWarning("CyborgCommandAscend finished", false);
+    	
     }
 
     protected void interrupted() {

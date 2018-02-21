@@ -1,9 +1,10 @@
 
 package org.usfirst.frc.team3695.robot.commands;
 
-import org.usfirst.frc.team3695.robot.Robot;
-
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.Command;
+import org.usfirst.frc.team3695.robot.Robot;
+import org.usfirst.frc.team3695.robot.util.Util;
 
 public class CyborgCommandDriveDirect extends Command {
 
@@ -18,6 +19,8 @@ public class CyborgCommandDriveDirect extends Command {
     }
 
     protected void initialize() {
+    	DriverStation.reportWarning("DRIVING BY POWER", false);
+    	Robot.SUB_DRIVE.setAuto(true);
         Robot.SUB_DRIVE.reset();
         time = System.currentTimeMillis() + TIME_WAIT;
     }
@@ -34,6 +37,8 @@ public class CyborgCommandDriveDirect extends Command {
     }
 
     protected void end() {
+        Robot.SUB_DRIVE.setAuto(false);
+        DriverStation.reportWarning("CyborgCommandDriveDirect finished", false);
         Robot.SUB_DRIVE.driveDirect(0, 0);
     }
 
