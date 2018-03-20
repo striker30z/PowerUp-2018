@@ -3,23 +3,30 @@ package org.usfirst.frc.team3695.robot.commands;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.Command;
 import org.usfirst.frc.team3695.robot.Robot;
-import org.usfirst.frc.team3695.robot.enumeration.Position;
-import org.usfirst.frc.team3695.robot.subsystems.SubsystemDrive;
 import org.usfirst.frc.team3695.robot.util.Util;
 
 public class CyborgCommandDriveUntilError extends Command {
-    public static final long ERROR_TIME = 500;
-    public static final int TARGET_ERROR = 500;
+    public long errorTime;
+    public long runTime;
 
+    double allowableError = 2;
+
+    double currentPosLeft;
+    double currentPosRight;
+    
     private long time = 0;
 
-    public CyborgCommandDriveUntilError() {
+    public CyborgCommandDriveUntilError(long errorTime, double allowableError) {
+        this.errorTime = errorTime;
+        this.allowableError = allowableError;
+        runTime = System.currentTimeMillis();
         requires(Robot.SUB_DRIVE);
+        currentPosLeft = Robot.SUB_DRIVE.pid.getLeftInches();
+        currentPosRight = Robot.SUB_DRIVE.pid.getRightInches();
     }
 
     protected void initialize() {
-        time = System.currentTimeMillis() + ERROR_TIME;
-        Robot.SUB_DRIVE.setAuto(true);
+        runTime = System.currentTimeMillis();
     }
 
     protected void execute() {
@@ -28,16 +35,19 @@ public class CyborgCommandDriveUntilError extends Command {
     }
 
     protected boolean isFinished() {
-        if(Math.abs(Robot.SUB_DRIVE.getError()) < TARGET_ERROR) {
-            time = System.currentTimeMillis() + ERROR_TIME;
+        if (!((currentPosLeft + allowableError) > Robot.SUB_DRIVE.pid.getLeftInches() && (currentPosLeft - allowableError) < Robot.SUB_DRIVE.pid.getLeftInches())
+                || !((currentPosRight + allowableError) > Robot.SUB_DRIVE.pid.getRightInches() && (currentPosRight - allowableError) < Robot.SUB_DRIVE.pid.getRightInches())){
+            currentPosLeft = Robot.SUB_DRIVE.pid.getLeftInches();
+            currentPosRight = Robot.SUB_DRIVE.pid.getRightInches();
+            runTime = System.currentTimeMillis();
+            return false;
         }
-        boolean toReturn = time < System.currentTimeMillis();
-        return time < System.currentTimeMillis();
+        return errorTime + runTime < System.currentTimeMillis();
     }
 
     protected void end() {
         DriverStation.reportWarning("CyborgCommandDriveUntilError finished", false);
-        Robot.SUB_DRIVE.setAuto(false);
+        runTime = Long.MAX_VALUE;
         Robot.SUB_DRIVE.driveDirect(0, 0);
     }
 

@@ -5,7 +5,7 @@ public class Constants {
 
 	public static final double
 		/// BOT SPECS
-			DISTANCE_BETWEEN_WHEELS = 24, // inches between wheels; used for turn calculations
+			DISTANCE_BETWEEN_WHEELS = 26, // inches between wheels; used for turn calculations
 			WHEEL_DIAMETER          = 6, // wheel diameter in inches
 		/// MANIPULATOR
 			SPINNY_SPEED = 1,
@@ -17,13 +17,11 @@ public class Constants {
 			REDLINE_END   = 1;
 	
 	public static final double
-		/// ENCODER MAGIC UNIT TRANSLATIONS
-			LEFT_MAGIC_PER_INCHES = -214.560,
-			RIGHT_MAGIC_PER_INCHES = 208.847,
 		///SAFETY
 			RECOVERY_SPEED = 0,
-			DOCK_INHIBITOR = 0.5,
-			TILT_ANGLE = 10;
+			DOCK_INHIBITOR = 1,
+			TILT_ANGLE = 10,
+			MAST_TIMEOUT = 3000; // timeout for HitTheDick in ms
 
 
 	public static final int
@@ -42,10 +40,11 @@ public class Constants {
 		/// PID
 			RIGHT_PID = 0,
 			LEFT_PID = 0,
-			TIMEOUT_PID = 10;
+			TIMEOUT_PID = 10000;
 
 	public static final int
 		/// I2C
+            //rip arduino
 			I2C_DEVICE_ADDRESS = 4,
 		/// RPM'S
 			REDLINE = 6000,
@@ -62,28 +61,33 @@ public class Constants {
 	
 	public static class OOF {
 		public static final boolean
-			LEFT_MOTOR_INVERT         = false,
-			RIGHT_MOTOR_INVERT        = true, 
 	
 			LEFT_PINION_MOTOR_INVERT  = false,
 			RIGHT_PINION_MOTOR_INVERT = true,
-			SCREW_MOTOR_INVERT        = false,
+			SCREW_MOTOR_INVERT        = true,
 	
 			LEFT_ARM_MOTOR_INVERT     = true,
 			RIGHT_ARM_MOTOR_INVERT    = false,
 	
-			HOOK_MOTOR_INVERT		  = false;
-		public static final int
-            P = 0,
+			HOOK_MOTOR_INVERT		  = false,
+
+			SCREW_CAM_FLIP = false,
+			FRAME_CAM_FLIP = false,
+
+            LEFT_MASTER_INVERT = false,
+    		LEFT_SLAVE_INVERT = false,
+            RIGHT_MASTER_INVERT = true,
+            RIGHT_SLAVE_INVERT = true;
+
+		public static final double
+            P = 0.5,
             I = 0,
             D = 0,
             F = 0;
 	}
 	
-	public static class SWISS {
+	public static class TEUFELSKIND {
 		public static final boolean
-			LEFT_MOTOR_INVERT         = false,
-			RIGHT_MOTOR_INVERT        = false,
 	
 			LEFT_PINION_MOTOR_INVERT  = false,
 			RIGHT_PINION_MOTOR_INVERT = true,
@@ -92,9 +96,18 @@ public class Constants {
 			LEFT_ARM_MOTOR_INVERT     = true,
 			RIGHT_ARM_MOTOR_INVERT    = false,
 	
-			HOOK_MOTOR_INVERT		  = false;
-        public static final int
-                P = 0,
+			HOOK_MOTOR_INVERT		  = false,
+
+			SCREW_CAM_FLIP = false,
+			FRAME_CAM_FLIP = false,
+
+			LEFT_MASTER_INVERT = false,
+            LEFT_SLAVE_INVERT = false,
+            RIGHT_MASTER_INVERT = false,
+            RIGHT_SLAVE_INVERT = false;
+
+        public static final double
+                P = 0.5,
                 I = 0,
                 D = 0,
                 F = 0;
@@ -103,25 +116,46 @@ public class Constants {
 
 	public static class AutonomousConstants {
 		//Save distances in inches
-		public static final int DIST_TO_SWITCH_FROM_SIDE = 168;
-		public static final int DIST_PASS_PORTAL = 36;
-		public static final int DIST_CENTER_LINE_SWITCH_ALIGN = 48;
-		public static final int DIST_BLOCKS_TO_SWITCH = 42;
-		public static final int DIST_WALL_TO_LINE = 120;
-		public static final int DIST_WALL_TO_BLOCKS = 98;
-		public static final int DIST_BLOCK_TO_MIDDLE_OF_SWITCH = 28;
-		public static final int DIST_WALL_TO_ENEMY_BLOCKS = 463;
-		public static final int DIST_WALL_TO_SWITCH_BLOCKS = 196;
-		public static final int DIST_SWITCH_BLOCK_TO_SCALE = 128;
-		public static final int DIST_WALL_TO_SCALE = 324; //Goes right in front of the scale
-		public static final double DIST_WALL_TO_SWITCH_BLOCK_MID = 228.74;
 
-		public static final int ROT_90_CLOCKWISE = 90;
-		public static final int ROT_90_COUNTERCLOCKWISE = -90;
+		//Distance from the side positions to the middle of the switch on the side
+		public static final int DIST_TO_SWITCH = 168;
+		//Distance rom the side positions to the middle of the scale on the side
+		public static final int DIST_TO_SCALE = 350;
+		//Distance from a side to the enemy switch
+		public static final int DIST_TO_ENEMY_SWITCH = 480;
+				
+		
+		//Distance to drive forward so we don't run into the portal when in the middle
+		public static final int DIST_PASS_PORTAL = 36;
+		//The center line of the field to the middle of the switch
+		public static final int DIST_CENTER_LINE_SWITCH_ALIGN = 48;
+		//From the farthest protrusion of the blocks to the switch
+		public static final int DIST_BLOCKS_TO_SWITCH = 42;
+		//Distance of line we need to pass for points
+		public static final int DIST_WALL_TO_LINE = 120;
+		//Distance from the wall to the farthest protrusion of blocks
+		public static final int DIST_ALLIANCE_WALL_TO_BLOCKS = 98;
+		
+		// the distance to pass the switch before traveling to the foreign home switch
+		public static final double DIST_PAST_SWITCH = 238.735;
+		
+		public static final double DIST_TO_FOREIGN_SWITCH = 193.75;
+		
+		public static final double DIST_PAST_SCALE = 240;
+		public static final double DIST_SCALE_LINEUP = 96;
+		
+		//Rotations
+		public static final int ROT_90_CW = 90;
+		public static final int ROT_90_CCW = -90;
 		public static final int ROT_180 = 180;
+
+
+		//Time to run the manipulator for
+		public static final int SPIT_LENGTH = 500;
 	}
 
 	public static class VisionConstants {
+		
 		public static final int CAM_HEIGHT = 1080;
 		public static final int CAM_WIDTH  = 1920;
 

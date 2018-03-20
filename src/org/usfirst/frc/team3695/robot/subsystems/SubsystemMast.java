@@ -10,23 +10,24 @@ import org.usfirst.frc.team3695.robot.Constants;
 import org.usfirst.frc.team3695.robot.Robot;
 import org.usfirst.frc.team3695.robot.commands.ManualCommandGrow;
 import org.usfirst.frc.team3695.robot.enumeration.Bot;
+import org.usfirst.frc.team3695.robot.enumeration.Position;
 import org.usfirst.frc.team3695.robot.util.Xbox;
 
 /** the big, metal pole */
 public class SubsystemMast extends Subsystem {
 	
 	
-	private TalonSRX leftPinion;
-	private TalonSRX rightPinion;
-	private TalonSRX screw;
+	public TalonSRX leftPinion;
+	public TalonSRX rightPinion;
+	public TalonSRX screw;
 	
-	DigitalInput lowerPinionLimit;
-    DigitalInput upperPinionLimit;
-    DigitalInput lowerScrewLimit;
-    DigitalInput midScrewLimit;
-    DigitalInput upperScrewLimit;
+	public DigitalInput lowerPinionLimit;
+	public DigitalInput upperPinionLimit;
+	public DigitalInput lowerScrewLimit;
+	public DigitalInput midScrewLimit;
+	public DigitalInput upperScrewLimit;
 
-    public Boolean override;
+    private Boolean override;
 
 	
 	/** runs at robot boot */
@@ -35,10 +36,12 @@ public class SubsystemMast extends Subsystem {
 	
 	/** gives birth to the CANTalons */
     public SubsystemMast(){
-    	lowerPinionLimit = new DigitalInput(1);
-        upperPinionLimit = new DigitalInput(2);
+    	/** Does it make sense to move the limit switch IDs to Constants? **/
+    	//no because they could be moved due to various electrical reasons-nate
+    	lowerPinionLimit = new DigitalInput(6);
+        upperPinionLimit = new DigitalInput(7);
         lowerScrewLimit  = new DigitalInput(3);
-        upperScrewLimit  = new DigitalInput(4);
+        upperScrewLimit  = new DigitalInput(5);
     	
     	leftPinion = new TalonSRX(Constants.LEFT_PINION_MOTOR);
     	rightPinion = new TalonSRX(Constants.RIGHT_PINION_MOTOR);
@@ -49,22 +52,25 @@ public class SubsystemMast extends Subsystem {
     		
 		override = false;
     }
+    
+    public void setOverride(Boolean override) {
+    	this.override = override;
+    }
 
-   	
    	/** apply pinion motor invert */
    	public static final double leftPinionate(double left) {
-   		Boolean invert = Robot.bot == Bot.OOF ? Constants.OOF.LEFT_PINION_MOTOR_INVERT : Constants.SWISS.LEFT_PINION_MOTOR_INVERT;
+   		Boolean invert = Robot.bot == Bot.OOF ? Constants.OOF.LEFT_PINION_MOTOR_INVERT : Constants.TEUFELSKIND.LEFT_PINION_MOTOR_INVERT;
    		return left * (invert ? -1.0 : 1.0);
    	}
    	
    	/** apply screw motor invert */
    	public static final double rightPinionate(double right) {
-   		Boolean invert = Robot.bot == Bot.OOF ? Constants.OOF.RIGHT_PINION_MOTOR_INVERT : Constants.SWISS.RIGHT_PINION_MOTOR_INVERT;
+   		Boolean invert = Robot.bot == Bot.OOF ? Constants.OOF.RIGHT_PINION_MOTOR_INVERT : Constants.TEUFELSKIND.RIGHT_PINION_MOTOR_INVERT;
    		return right * (invert ? -1.0 : 1.0);
    	}
    	
    	public static final double screwify(double screw) {
-   		Boolean invert = Robot.bot == Bot.OOF ? Constants.OOF.SCREW_MOTOR_INVERT : Constants.SWISS.SCREW_MOTOR_INVERT;
+   		Boolean invert = Robot.bot == Bot.OOF ? Constants.OOF.SCREW_MOTOR_INVERT : Constants.TEUFELSKIND.SCREW_MOTOR_INVERT;
    		return screw * (invert ? -1.0 : 1.0);
    	}
     
@@ -80,29 +86,28 @@ public class SubsystemMast extends Subsystem {
 		if (!upperScrewLimit.get()  && screwSpeed  < 0)   { screwSpeed = 0;  }
 			
     	publishSwitches();
-    	if (!override) {
-    		leftPinion.set(ControlMode.PercentOutput, leftPinionate(pinionSpeed));
-        	rightPinion.set(ControlMode.PercentOutput, rightPinionate(pinionSpeed));
-        	screw.set(ControlMode.PercentOutput, inhibitor * screwify(screwSpeed));
-    	}
+    	
+		leftPinion.set(ControlMode.PercentOutput, leftPinionate(pinionSpeed));
+    	rightPinion.set(ControlMode.PercentOutput, rightPinionate(pinionSpeed));
+    	screw.set(ControlMode.PercentOutput, inhibitor * screwify(screwSpeed));
     }
     
-    public Boolean dropIt() {
-    	if (!lowerPinionLimit.get() || !upperPinionLimit.get()) {
-	    	leftPinion.set(ControlMode.PercentOutput, leftPinionate(-1));
-	    	rightPinion.set(ControlMode.PercentOutput, rightPinionate(-1));
+    public void dropIt(double speed) {
+    	if (lowerPinionLimit.get()) {
+	    	leftPinion.set(ControlMode.PercentOutput, leftPinionate(speed));
+	    	rightPinion.set(ControlMode.PercentOutput, rightPinionate(speed));
     	} else {
-    		leftPinion.set(ControlMode.PercentOutput, leftPinionate(0));
-	    	rightPinion.set(ControlMode.PercentOutput, rightPinionate(0));
+    		leftPinion.set(ControlMode.PercentOutput, 0);
+	    	rightPinion.set(ControlMode.PercentOutput, 0);
     	}
     	
-    	if (!lowerScrewLimit.get() || !upperScrewLimit.get()) {
-    		screw.set(ControlMode.PercentOutput, screwify(1));
+    	if (lowerScrewLimit.get()) {
+    		screw.set(ControlMode.PercentOutput, screwify(speed));
     	} else {
-    		screw.set(ControlMode.PercentOutput, screwify(0));
+    		screw.set(ControlMode.PercentOutput, 0);
     	}
     	
-    	return !lowerScrewLimit.get() && !lowerPinionLimit.get();
+//    	return (!lowerPinionLimit.get()) && (!lowerScrewLimit.get());
     }
     	
     public void publishSwitches() {
@@ -119,11 +124,6 @@ public class SubsystemMast extends Subsystem {
     	talon.enableCurrentLimit(true);
     	talon.configContinuousCurrentLimit(60, 300);
     	talon.configPeakCurrentDuration(500, 10);
-    		// configContinuousCurrentLimit spat mean errors
-    		// commented out for now, but we need to address it
     }
-    
-    
-
 }
 
